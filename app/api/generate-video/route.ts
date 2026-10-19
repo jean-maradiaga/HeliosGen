@@ -296,7 +296,7 @@ export async function POST(req: NextRequest) {
     if (maybeSeed !== undefined && apiInput.seedKey) input[apiInput.seedKey] = maybeSeed;
 
   } else if (apiInput.referenceImagesKey) {
-    // ── Reference-image-based models (Grok Imagine, Grok Imagine 1.5) ─────────
+    // ── Reference-image-based models (Grok Imagine, Kling 2.6, PixVerse, …) ───
     const refImageUrls = (
       await Promise.all(
         (rawRefImages as string[]).map((u) => ensureR2(u, "references").catch(() => null))
@@ -315,9 +315,11 @@ export async function POST(req: NextRequest) {
     };
 
     if (apiInput.modeKey)       input[apiInput.modeKey]       = mode;
+    if (apiInput.soundKey)      input[apiInput.soundKey]      = Boolean(sound);
     if (apiInput.resolutionKey) input[apiInput.resolutionKey] = resolution;
     if (apiInput.extra)         Object.assign(input, apiInput.extra);
     if (hasImages) input[apiInput.referenceImagesKey] = refImageUrls;
+    if (hasImages && apiInput.omitAspectRatioWithImages) delete input[apiInput.aspectRatioKey!];
 
   } else {
     // ── Start/end-frame + elements models (Kling) ─────────────────────────────
